@@ -16,7 +16,7 @@ bridge = CvBridge()
 class Node:
     def __init__(self):
         rospy.init_node("rtr_qr_reader_node")
-        topic = rospy.get_param("/qr_reader/topic_name", "/usb_cam/image_raw")
+        topic = rospy.get_param("/qr_reader/topic_name", "/quadcopter/camera_image")
 
         rospy.wait_for_service("/quadcopter/qr_position")
         self.qr_position = rospy.ServiceProxy(
