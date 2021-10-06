@@ -13,11 +13,8 @@ find_package(catkin REQUIRED COMPONENTS
   rtr_msgs
 )
 
-add_service_files(DIRECTORY srv FILES QRPosition.srv)
-generate_messages(DEPENDENCIES std_msgs)
 catkin_package(
   CATKIN_DEPENDS
-    std_msgs
     rtr_msgs
 )
 
