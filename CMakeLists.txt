@@ -10,6 +10,15 @@ project(rtr_qr_reader)
 find_package(catkin REQUIRED COMPONENTS
   jsk_rviz_plugins
   rospy
+  rtr_msgs
+)
+
+add_service_files(DIRECTORY srv FILES QRPosition.srv)
+generate_messages(DEPENDENCIES std_msgs)
+catkin_package(
+  CATKIN_DEPENDS
+    std_msgs
+    rtr_msgs
 )
 
 ## System dependencies are found with CMake's conventions

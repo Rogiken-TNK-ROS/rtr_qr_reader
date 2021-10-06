@@ -8,7 +8,7 @@ import cv2
 from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
 from jsk_rviz_plugins.msg import OverlayText
-from rtr_quadcopter_controller.srv import QRPosition
+from rtr_msgs.srv import QRPosition
 
 bridge = CvBridge()
 
