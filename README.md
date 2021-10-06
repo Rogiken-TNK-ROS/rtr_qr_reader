@@ -3,6 +3,7 @@ Decode QR-code from image topic and show as OverlayText in rviz
 ![](./resource/screenshot.png)
 ## requirements
 ~~~bash
+sudo apt install zbar-tools
 pip3 install pyzbar
 pip3 install opencv-python
 sudo apt install ros-noetic-cv-bridge
