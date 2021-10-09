@@ -15,14 +15,14 @@ bridge = CvBridge()
 class Node:
     def __init__(self):
         rospy.init_node("rtr_qr_reader_node")
-        topic = rospy.get_param("/qr_reader/topic_name", "/RTRQuadcopter/Camera2/image_raw")
 
-        self.img_sub = rospy.Subscriber(
-            topic, Image, self.img_callback, queue_size=100)
+        self.cam2_sub = rospy.Subscriber(
+            "/RTRQuadcopter/Camera2/image_raw", Image, self.img_callback, queue_size=1)
+        self.cam3_sub = rospy.Subscriber(
+            "/RTRQuadcopter/Camera3/image_raw", Image, self.img_callback, queue_size=1)
 
         self.output_pub = rospy.Publisher(
             "qr_output", OverlayText, queue_size=10)
-        self.res = None
 
     def img_callback(self, img_msg):
         img = bridge.imgmsg_to_cv2(img_msg, "bgr8")
@@ -33,19 +33,7 @@ class Node:
         print(data[0][1])
         print(data[0][2])
         print(data[0][3])
-        x = 0
-        y = 0
-        for p in data[0][3]:
-            x += p.x
-            y += p.y
-        x /= 4
-        y /= 4
-        x = int(x)
-        y = int(y)
 
-        print(x, y)
-
-        print(self.res)
         text = OverlayText()
         text.text = data[0][0].decode('utf-8', 'ignore')
         text.width = 500
