@@ -2,7 +2,8 @@
 from typing import Text
 from pyzbar.pyzbar import decode
 
-import rospy
+import rclpy
+from rclpy.node import Node
 
 import cv2
 from cv_bridge import CvBridge
@@ -13,20 +14,20 @@ from rtr_msgs.srv import QRPosition
 bridge = CvBridge()
 
 
-class Node:
+class QRReaderNode(Node):
     def __init__(self):
-        rospy.init_node("rtr_qr_reader_node")
-        topic = rospy.get_param("/qr_reader/topic_name", "/RTRQuadcopter/Camera2/image_raw")
+        super().__init__('rtr_qr_reader_node')
+        topic = self.declare_parameter('topic_name', '/RTRQuadcopter/Camera2/image_raw').get_parameter_value().string_value
 
-        rospy.wait_for_service("/quadcopter/qr_position")
-        self.qr_position = rospy.ServiceProxy(
-                "/quadcopter/qr_position", QRPosition)
+        self.qr_position = self.create_client(QRPosition, "/quadcopter/qr_position")
+        while not self.qr_position.wait_for_service(timeout_sec=1.0):
+            self.get_logger().info('service not available, waiting again...')
 
-        self.img_sub = rospy.Subscriber(
-            topic, Image, self.img_callback, queue_size=100)
+        self.img_sub = self.create_subscription(
+            Image, topic, self.img_callback, 10)
 
-        self.output_pub = rospy.Publisher(
-            "qr_output", OverlayText, queue_size=10)
+        self.output_pub = self.create_publisher(
+            OverlayText, "qr_output", 10)
         self.res = None
 
     def img_callback(self, img_msg):
@@ -49,10 +50,15 @@ class Node:
         y = int(y)
 
         print(x, y)
+        req = QRPosition.Request()
+        req.x = x
+        req.y = y
+        future = self.qr_position.call_async(req)
+        rclpy.spin_until_future_complete(self, future)
         try:
-            self.res = self.qr_position(x, y)
-        except rospy.ServiceException as e:
-            print("Service call failed: %s" % e)
+            self.res = future.result()
+        except Exception as e:
+            self.get_logger().error('Service call failed %r' % (e,))
 
         print(self.res)
         text = OverlayText()
@@ -71,6 +77,13 @@ class Node:
         self.output_pub.publish(text)
 
 
+def main(args=None):
+    rclpy.init(args=args)
+    node = QRReaderNode()
+    rclpy.spin(node)
+    node.destroy_node()
+    rclpy.shutdown()
+
+
 if __name__ == '__main__':
-    node = Node()
-    rospy.spin()
+    main()
