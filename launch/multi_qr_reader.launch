@@ -1,4 +1,3 @@
-<?xml version="1.0"?>
 <launch>
     <node pkg="rtr_qr_reader" type="multi_qr_reader.py" name="multi_qr_reader" output="screen">
         <!-- カンマ区切りでトピックを指定 -->
